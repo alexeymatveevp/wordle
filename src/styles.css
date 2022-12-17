@@ -2,3 +2,29 @@ h1 {
     color: red;
     background: mediumseagreen;
 }
+.word {
+    display: grid;
+    grid-template-columns: repeat(5, 25px);
+    gap: 5px;
+    background: beige;
+    border-radius: 5px;
+    width: 145px;
+    padding: 10px;
+}
+.letter {
+    width: 25px;
+    height: 25px;
+    border-radius: 5px;
+}
+.letter__empty {
+    background: grey;
+}
+.letter__wrong {
+    background: darkgrey;
+}
+.letter__present {
+    background: #eeee3d;
+}
+.letter__correct {
+    background: grey;
+}
