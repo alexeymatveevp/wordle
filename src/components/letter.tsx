@@ -2,12 +2,12 @@ import React from "react";
 
 export type StateType = 'EMPTY' | 'CORRECT' | 'WRONG_SPOT' | 'WRONG';
 
-export interface LetterProps {
+export interface LetterT {
     value: string;
     state: StateType;
     isFilled: boolean;
 }
-export const Letter = React.memo<LetterProps>(({value, state}) => {
+export const Letter = React.memo<LetterT>(({value, state}) => {
     return <div className={'letter ' + getStateClassName(state)}>{value}</div>
 })
 

@@ -1,3 +1,10 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    font-family: sans-serif, Arial;
+}
 h1 {
     color: red;
     background: mediumseagreen;
@@ -15,16 +22,20 @@ h1 {
     width: 25px;
     height: 25px;
     border-radius: 5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .letter__empty {
-    background: grey;
+    background: lightgrey;
 }
 .letter__wrong {
-    background: darkgrey;
+    background: grey;
 }
 .letter__present {
     background: #eeee3d;
 }
 .letter__correct {
-    background: grey;
+    background: green;
 }
