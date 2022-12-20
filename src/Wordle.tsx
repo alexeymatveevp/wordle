@@ -11,7 +11,7 @@ const EMPTY_LETTERS: Array<LetterT> = Array.from({length: WORD_LENGTH}, () => ({
 const regexpLetter = RegExp(`[A-Za-z]`);
 export const Wordle: FC = () => {
     const [letters, setLetters] = useState(EMPTY_LETTERS)
-    const answer = 'hello';
+    const answer = 'abuse';
     const [guesses, addGuess] = useState<Array<Word>>([]);
     const [isVictory, setVictory] = useState<boolean>(false);
     const [error, setError] = useState<string>();
