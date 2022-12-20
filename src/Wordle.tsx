@@ -1,15 +1,20 @@
-import {FC, useEffect, useState} from 'react'
+import {FC, useEffect, useMemo, useState} from 'react'
 import './styles.css'
 import {Letter, LetterT} from "./components/letter";
 import {Word} from "./components/word";
 import {makeGuess} from "./utils/make-guess";
+import {apiWordChecker} from "./utils/check-word";
 
-const EMPTY_LETTERS: Array<LetterT> = Array.from({length: 5}, () => ({value: '', state: 'EMPTY', isFilled: false}));
-const regexpLetter = RegExp(`[A-Za-z]{1}`);
+const TRIES_AMOUNT = 6;
+const WORD_LENGTH = 5;
+const EMPTY_LETTERS: Array<LetterT> = Array.from({length: WORD_LENGTH}, () => ({value: '', state: 'EMPTY', isFilled: false}));
+const regexpLetter = RegExp(`[A-Za-z]`);
 export const Wordle: FC = () => {
     const [letters, setLetters] = useState(EMPTY_LETTERS)
     const answer = 'hello';
     const [guesses, addGuess] = useState<Array<Word>>([]);
+    const [isVictory, setVictory] = useState<boolean>(false);
+    const [error, setError] = useState<string>();
 
     const listenToKeyBoard = (event: KeyboardEvent) => {
         if(event.code === 'Backspace') {
@@ -23,11 +28,18 @@ export const Wordle: FC = () => {
             });
             setLetters(newLetters);
         } else if (event.code === 'Enter' && letters.every(letter => letter.isFilled)) {
-            console.log('check the guess');
-            const guessWord = letters.map(letter => letter.value).join('');
+            const guessWord = getWordByLetters(letters);
             const guessResult = makeGuess(answer, guessWord);
-            addGuess((prevState) => [...prevState, guessResult]);
-            setLetters(EMPTY_LETTERS);
+            const ifWordExist = apiWordChecker(guessWord);
+            ifWordExist.then(() => {
+                addGuess((prevState) => [...prevState, guessResult]);
+                setLetters(EMPTY_LETTERS);
+                if (guessResult.every(letter => letter.state ==='CORRECT')) {
+                    setVictory(true);
+                }
+            }).catch(() => {
+                setError('Word does not exist');
+            })
         } else if (event.key.length === 1 && regexpLetter.test(event.key)) {
             const firstEmpty = letters.findIndex(letter => !letter.isFilled);
             const newLetters = letters.map((letter, index) => {
@@ -37,6 +49,7 @@ export const Wordle: FC = () => {
                 return letter;
             });
             setLetters(newLetters);
+            setError(undefined);
         }
     };
     useEffect(() => {
@@ -44,15 +57,24 @@ export const Wordle: FC = () => {
 
         return () => window.removeEventListener('keydown', listenToKeyBoard);
     })
+    const emptyTries = useMemo(() => Array.from({length: TRIES_AMOUNT - guesses.length - Number(!isVictory)}, (_: unknown, index: number) => <Word word={EMPTY_LETTERS} key={index} />), [guesses])
     return (
         <div className="App">
             <h1>It works Tanya &lt;3 </h1>
-            {guesses.map(guess => <Word word={guess} />)}
-            {guesses.length <= 5 &&
+            {guesses.map((guess, index) => <Word word={guess} key={index} />)}
+            {guesses.length < TRIES_AMOUNT && !isVictory &&
                 <div className={'word'}>
                     {letters.map((letter, index) => <Letter {...letter} key={index} />)}
                 </div>
             }
+            {emptyTries}
+
+            {error && <div className={'status error'}>{error}</div>}
+            {isVictory && <div className={'status victory'}>YOU WON!</div>}
         </div>
     )
+}
+
+function getWordByLetters(letters: Array<LetterT>): string {
+    return letters.map(letter => letter.value).join('');
 }

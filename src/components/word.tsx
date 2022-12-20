@@ -7,6 +7,6 @@ interface WordProps {
 }
 export const Word = React.memo<WordProps>(({word}) => {
     return <div className={'word'}>
-        {word.map(letter => <Letter {...letter} />)}
+        {word.map((letter, index) => <Letter {...letter} key={index} />)}
     </div>
 });
