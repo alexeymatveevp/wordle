@@ -1,18 +1,23 @@
-import {FC, useEffect, useMemo, useState} from 'react'
+import { FC, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import './styles.css'
 import {Letter, LetterT} from "./components/letter";
 import {Word} from "./components/word";
 import {makeGuess} from "./utils/make-guess";
 import {apiWordChecker} from "./utils/check-word";
+import { useViewModel } from "./utils/react.utils";
+import { createWordleGameVM } from "./view-models/game-vm";
 
 const TRIES_AMOUNT = 6;
 const WORD_LENGTH = 5;
 const EMPTY_LETTERS: Array<LetterT> = Array.from({length: WORD_LENGTH}, () => ({value: '', state: 'EMPTY', isFilled: false}));
 const regexpLetter = RegExp(`[A-Za-z]`);
+
 export const Wordle: FC = () => {
     const [letters, setLetters] = useState(EMPTY_LETTERS)
     const answer = 'abuse';
-    const [guesses, addGuess] = useState<Array<Word>>([]);
+    const wordleGameVM = useMemo(createWordleGameVM, []);
+    let { guesses, addGuess } = useViewModel(wordleGameVM);
+    // const [guesses, addGuess] = useState<Array<Word>>([]);
     const [isVictory, setVictory] = useState<boolean>(false);
     const [error, setError] = useState<string>();
 
@@ -32,7 +37,7 @@ export const Wordle: FC = () => {
             const guessResult = makeGuess(answer, guessWord);
             const ifWordExist = apiWordChecker(guessWord);
             ifWordExist.then(() => {
-                addGuess((prevState) => [...prevState, guessResult]);
+                addGuess(guessResult);
                 setLetters(EMPTY_LETTERS);
                 if (guessResult.every(letter => letter.state ==='CORRECT')) {
                     setVictory(true);
